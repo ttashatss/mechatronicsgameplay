@@ -61,6 +61,16 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
   options = vision.ObjectDetectorOptions(
       base_options=base_options, detection_options=detection_options)
   detector = vision.ObjectDetector.create_from_options(options)
+  
+  #initialize pigCase
+  pigCaseX = -1
+
+  #dimension of the frame
+  frameW = 640
+  frameH = 480
+  
+  minW = 3*frameW/8
+  maxW = 5*frameW/8
 
   # Continuously capture images from the camera and run inference
   while cap.isOpened():
@@ -82,6 +92,36 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
     # Run object detection estimation using the model.
     detection_result = detector.detect(input_tensor)
 
+    
+    
+    #processing coordinate of picture to classify the case
+    if detection_result.detections != []:
+        #If detect as green-pig
+        if detection_result.detections[0].categories[0].category_name == 'green-pig':
+            print(detection_result.detections[0].bounding_box)
+            #origin at top-left
+            originX = detection_result.detections[0].bounding_box.origin_x
+            originY = detection_result.detections[0].bounding_box.origin_y
+            #image size
+            width = detection_result.detections[0].bounding_box.width
+            height = detection_result.detections[0].bounding_box.height
+            #locate center of picture
+            centerX = originX + width/2
+            centerY = originY + height/2
+            print(centerX,centerY)
+            
+            if centerX < minW:
+                pigCaseX = 0     #too left
+            elif centerX > minW and centerX < maxW:
+                pigCaseX = 1     #middle
+            elif centerX > maxW:
+                pigCaseX = 2     #too right
+    else:
+        pigCaseX = -1
+    
+    #print pigCaseX
+    print(pigCaseX)                 
+            
     # Draw keypoints and edges on input image
     image = ut.visualize(image, detection_result)
 
@@ -113,7 +153,7 @@ def main():
       '--model',
       help='Path of the object detection model.',
       required=False,
-      default='efficientdet_lite0.tflite')
+      default='pigModel.tflite')
   parser.add_argument(
       '--cameraId', help='Id of camera.', required=False, type=int, default=0)
   parser.add_argument(
