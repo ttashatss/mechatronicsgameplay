@@ -1,5 +1,4 @@
 import socketio
-import time
 
 # def send() :
 #     send data to database
@@ -18,7 +17,7 @@ def gameplay(username):
     pigNum = 3
     birdNum = 5
 
-    timeStart = int(time.time())  # type: ignore
+    print(username)
 
     global kills
     kills = 0
@@ -31,10 +30,6 @@ def gameplay(username):
         pigCaseX = 0 # pigCaseX = toffyfile.pigCaseX
         buttonPressed = 1 # buttonPressed = angiefile.buttonPressed
 
-        # timeElapsed = int(time.time())-timeStart
-        # print(timeLim - int(timeElapsed))
-
-        # (timeLim - timeElapsed == 0) or 
         if (birdLive == 0) :
             print('You Lose')
             sio.emit('lose','You Lose')
