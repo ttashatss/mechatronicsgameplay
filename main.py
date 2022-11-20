@@ -69,8 +69,9 @@ buttonPressed = False
 
 #-----------------------------------------------------------------------------
 #camera setting
+@sio.on('run')
 def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
-        enable_edgetpu: bool) -> None:
+        enable_edgetpu: bool, username:str) -> None:
   """Continuously run inference on images acquired from the camera.
 
   Args:
@@ -185,11 +186,13 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
     if buttonPressed == True:       #Check whether pin is grounded
     #  #Print 'Button Pressed'
        #open laser when button is pressed
-       GPIO.output(17,1) 
-       time.sleep(0.1)              #Delay of 0.1s
-       GPIO.output(17,0) 
-       time.sleep(0.9)              #Delay of 0.9s    
-            
+      print([username, pigCaseX, buttonPressed])
+      # sio.emit('mechanics', [username, pigCaseX, buttonPressed])
+      GPIO.output(17,1) 
+      time.sleep(0.1)              #Delay of 0.1s
+      GPIO.output(17,0) 
+      time.sleep(0.9)              #Delay of 0.9s    
+          
     # Draw keypoints and edges on input image
     image = ut.visualize(image, detection_result)
 
@@ -211,57 +214,100 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
     cv2.imshow('object_detector', image)
 
     print([pigCaseX, buttonPressed])
+    sio.emit('mechanics', [username, pigCaseX, buttonPressed])
 
   cap.release()
   cv2.destroyAllWindows()
 
 
+# def main(username):
+#   parser = argparse.ArgumentParser(
+#       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+#   parser.add_argument(
+#       '--model',
+#       help='Path of the object detection model.',
+#       required=False,
+#       default='pigModel.tflite')
+#   parser.add_argument(
+#       '--cameraId', help='Id of camera.', required=False, type=int, default=0)
+#   parser.add_argument(
+#       '--frameWidth',
+#       help='Width of frame to capture from camera.',
+#       required=False,
+#       type=int,
+#       default=640)
+#   parser.add_argument(
+#       '--frameHeight',
+#       help='Height of frame to capture from camera.',
+#       required=False,
+#       type=int,
+#       default=480)
+#   parser.add_argument(
+#       '--numThreads',
+#       help='Number of CPU threads to run the model.',
+#       required=False,
+#       type=int,
+#       default=4)
+#   parser.add_argument(
+#       '--enableEdgeTPU',
+#       help='Whether to run the model on EdgeTPU.',
+#       action='store_true',
+#       required=False,
+#       default=False)
+#   args = parser.parse_args()
 
-def main():
-  parser = argparse.ArgumentParser(
+#   run(args.model, int(args.cameraId), args.frameWidth, args.frameHeight,
+#       int(args.numThreads), bool(args.enableEdgeTPU), username)
+
+
+# if __name__ == '__main__':
+#   main()
+
+@sio.event
+def connect():
+    print("mechanics connected!")
+    sio.emit('client3', 'connected')
+
+@sio.on('toclient3')
+def toclient2(data) :
+    print('client3', data)
+    parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument(
+    parser.add_argument(
       '--model',
       help='Path of the object detection model.',
       required=False,
       default='pigModel.tflite')
-  parser.add_argument(
+    parser.add_argument(
       '--cameraId', help='Id of camera.', required=False, type=int, default=0)
-  parser.add_argument(
+    parser.add_argument(
       '--frameWidth',
       help='Width of frame to capture from camera.',
       required=False,
       type=int,
       default=640)
-  parser.add_argument(
+    parser.add_argument(
       '--frameHeight',
       help='Height of frame to capture from camera.',
       required=False,
       type=int,
       default=480)
-  parser.add_argument(
+    parser.add_argument(
       '--numThreads',
       help='Number of CPU threads to run the model.',
       required=False,
       type=int,
       default=4)
-  parser.add_argument(
+    parser.add_argument(
       '--enableEdgeTPU',
       help='Whether to run the model on EdgeTPU.',
       action='store_true',
       required=False,
       default=False)
-  args = parser.parse_args()
+    args = parser.parse_args()
 
-  run(args.model, int(args.cameraId), args.frameWidth, args.frameHeight,
-      int(args.numThreads), bool(args.enableEdgeTPU))
+    run(args.model, int(args.cameraId), args.frameWidth, args.frameHeight,
+      int(args.numThreads), bool(args.enableEdgeTPU), data)
 
-
-if __name__ == '__main__':
-  main()
-
-@sio.on('toclient3')
-def toclient2(data) :
-    print('client3', data)
 
 sio.connect("http://localhost:8000")

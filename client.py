@@ -1,7 +1,10 @@
 import socketio
+import time
 
 # def send() :
 #     send data to database
+
+
 
 # standard Python
 sio = socketio.Client()
@@ -10,47 +13,33 @@ sio = socketio.Client()
 def connect():
     print("gameplay connected!")
     sio.emit('client2', 'connected')
+    gameplay()
 
 @sio.on('gameplay')
-def gameplay(username):
-    timeLim = 5
-    pigNum = 3
-    birdNum = 5
+def gameplay():
+    print("gameplay called")
 
-    print(username)
+    @sio.on('toclient2')
+    def toclient2(data) :
+        print('client2', data)
+        pigCaseX = data[1]
+        button_curr = data[2]
 
-    global kills
-    kills = 0
-
-    global birdLive
-    birdLive = birdNum
-
-    while(True):
-        sio.emit('back', [kills, birdLive])
-        pigCaseX = 0 # pigCaseX = toffyfile.pigCaseX
-        buttonPressed = 1 # buttonPressed = angiefile.buttonPressed
-
-        if (birdLive == 0) :
-            print('You Lose')
-            sio.emit('lose','You Lose')
-            # send()
-            exit()
-
-        if (kills >= pigNum) :
-            print('You Win')
-            sio.emit('win','You Win')
-            # send()
-            exit()
-
-        if (buttonPressed) :
-            birdLive -= 1
+        if (button_curr) :
+            print('button is pressed') 
             if (pigCaseX == 1) :
-                kills += 1
+                sio.emit('back', [1, -1])
+            else :
+                sio.emit('back', [0, -1])
+            time.sleep(1) 
 
-@sio.on('toclient2')
-def toclient2(data) :
-    print('client2', data)
-    gameplay(data)
+        time.sleep(1)   
+         
+
+# @sio.on('toclient2')
+# def toclient2(data) :
+#     # print('client2', data)
+#     gameplay(data)
 
 
 sio.connect("http://localhost:8000")

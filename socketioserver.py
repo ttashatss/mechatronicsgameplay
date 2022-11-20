@@ -18,24 +18,36 @@ def connect(sid, environ):
 def client2(sid, data):
     print('client2', data)
 
+@sio.on('client3')
+def client3(sid, data):
+    print('client3', data)
+
 @sio.on('username')
 async def username(sid, data):
     print('username', data)
-    await sio.emit('toclient2', data)
+    await sio.emit('toclient3', data)
     
 @sio.on('back')
 async def back(sid, data):
+    print(data)
     await sio.emit('score', data)
 
-@sio.on('win')
-async def win(sid, data):
-    await sio.emit('win', data)
-    print(data)
+# @sio.on('win')
+# async def win(sid, data):
+#     await sio.emit('win', data)
+#     print(data)
 
-@sio.on('lose')
-async def lose(sid, data):
-    await sio.emit('lose', data)
-    print(data)
+# @sio.on('lose')
+# async def lose(sid, data):
+#     await sio.emit('lose', data)
+#     print(data)
+
+@sio.on('mechanics')
+async def mechanics(sid, data):
+    # print('mechanicss', data)
+    await sio.emit('toclient2', data)
+
+
 
 
 if __name__ == '__main__':
