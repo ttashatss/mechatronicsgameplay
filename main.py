@@ -125,15 +125,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
 #   buttonPressed = False     
 
   # Continuously capture images from the camera and run inference
-  while cap.isOpened():
-    buttonPressed = not GPIO.input(24) #Read and store value of input to a variable
-    if buttonPressed == True: 
-      #open laser when button is pressed
-      GPIO.output(17,1) 
-      time.sleep(0.5)              #Delay of 0.5s
-      GPIO.output(17,0) 
-      time.sleep(0.5)              #Delay of 0.5s  
-
+  while cap.isOpened(): 
       #capture the frame
       success, image = cap.read()
       if not success:
@@ -190,6 +182,13 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
       
       #if pig is not detected, the motor will keep rotating
       
+      buttonPressed = not GPIO.input(24) #Read and store value of input to a variable
+      if buttonPressed == True: 
+        #open laser when button is pressed
+        GPIO.output(17,1) 
+        time.sleep(0.5)              #Delay of 0.5s
+        GPIO.output(17,0) 
+        time.sleep(0.5)              #Delay of 0.5s 
       print([username, pigCaseX, buttonPressed])
       # sio.emit('mechanics', [username, pigCaseX, buttonPressed])  
             
