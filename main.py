@@ -306,8 +306,7 @@ def toclient2(data) :
       default=False)
     args = parser.parse_args()
 
-    run(args.model, int(args.cameraId), args.frameWidth, args.frameHeight,
-      int(args.numThreads), bool(args.enableEdgeTPU), data)
+    run(args.model, int(args.cameraId), args.frameWidth, args.frameHeight,int(args.numThreads), bool(args.enableEdgeTPU), data)
 
 
 sio.connect("http://localhost:8000")
