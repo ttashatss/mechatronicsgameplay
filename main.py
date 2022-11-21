@@ -127,8 +127,10 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
   # Continuously capture images from the camera and run inference
   while cap.isOpened():
     buttonPressed = not GPIO.input(24) #Read and store value of input to a variable
+    print('Done1')
     if buttonPressed == True: 
       #open laser when button is pressed
+      print('Done2')
       GPIO.output(17,1) 
       time.sleep(0.5)              #Delay of 0.5s
       GPIO.output(17,0) 
