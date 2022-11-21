@@ -189,9 +189,9 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
       print([username, pigCaseX, buttonPressed])
       # sio.emit('mechanics', [username, pigCaseX, buttonPressed])
       GPIO.output(17,1) 
-      time.sleep(0.1)              #Delay of 0.1s
+      time.sleep(0.5)              #Delay of 0.1s
       GPIO.output(17,0) 
-      time.sleep(0.9)              #Delay of 0.9s    
+      time.sleep(0.5)              #Delay of 0.9s    
           
     # Draw keypoints and edges on input image
     image = ut.visualize(image, detection_result)
