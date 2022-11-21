@@ -126,95 +126,95 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
 
   # Continuously capture images from the camera and run inference
   while cap.isOpened():
-    success, image = cap.read()
-    if not success:
-      sys.exit(
-          'ERROR: Unable to read from webcam. Please verify your webcam settings.'
-      )
-
-    counter += 1
-    image = cv2.flip(image, 1)
-
-    # Convert the image from BGR to RGB as required by the TFLite model.
-    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    # Create a TensorImage object from the RGB image.
-    input_tensor = vision.TensorImage.create_from_array(rgb_image)
-
-    # Run object detection estimation using the model.
-    detection_result = detector.detect(input_tensor)
-    
-    #processing coordinate of picture to classify the case
-    if detection_result.detections != []:
-        #If detect as green-pig
-        if detection_result.detections[0].categories[0].category_name == 'green-pig':
-            # print(detection_result.detections[0].bounding_box)
-            #origin at top-left
-            originX = detection_result.detections[0].bounding_box.origin_x
-            originY = detection_result.detections[0].bounding_box.origin_y
-            #image size
-            width = detection_result.detections[0].bounding_box.width
-            height = detection_result.detections[0].bounding_box.height
-            #locate center of picture
-            centerX = originX + width/2
-            centerY = originY + height/2
-            # print(centerX,centerY)
-            
-            if centerX < minW:
-                pigCaseX = 0     #too left
-            elif centerX > minW and centerX < maxW:
-                pigCaseX = 1     #middle
-            elif centerX > maxW:
-                pigCaseX = 2     #too right
-    else:
-        pigCaseX = -1
- 
-    #print pigCaseX
-    # print(pigCaseX)
-    
-    if pigCaseX == 0:                      #too left
-        cw()
-    elif pigCaseX == 1:                    #middle 
-        stop()
-    elif pigCaseX == 2:                     #too right
-        ccw()
-    
-    #if pig is not detected, the motor will keep rotating
-    
-    #setting button
     buttonPressed = not GPIO.input(24) #Read and store value of input to a variable
-    if buttonPressed == True:       #Check whether pin is grounded
-    #  #Print 'Button Pressed'
-       #open laser when button is pressed
-      print([username, pigCaseX, buttonPressed])
-      # sio.emit('mechanics', [username, pigCaseX, buttonPressed])
+    if buttonPressed == True: 
+      #open laser when button is pressed
       GPIO.output(17,1) 
-      time.sleep(0.5)              #Delay of 0.1s
+      time.sleep(0.5)              #Delay of 0.5s
       GPIO.output(17,0) 
-      time.sleep(0.5)              #Delay of 0.9s    
-          
-    # Draw keypoints and edges on input image
-    image = ut.visualize(image, detection_result)
+      time.sleep(0.5)              #Delay of 0.5s  
 
-    # Calculate the FPS
-    if counter % fps_avg_frame_count == 0:
-      end_time = time.time()
-      fps = fps_avg_frame_count / (end_time - start_time)
-      start_time = time.time()
+      #capture the frame
+      success, image = cap.read()
+      if not success:
+        sys.exit(
+            'ERROR: Unable to read from webcam. Please verify your webcam settings.'
+        )
 
-    # Show the FPS
-    fps_text = 'FPS = {:.1f}'.format(fps)
-    text_location = (left_margin, row_size)
-    cv2.putText(image, fps_text, text_location, cv2.FONT_HERSHEY_PLAIN,
-                font_size, text_color, font_thickness)
+      counter += 1
+      image = cv2.flip(image, 1)
 
-    # Stop the program if the ESC key is pressed.
-    if cv2.waitKey(1) == 27:
-      break
-    cv2.imshow('object_detector', image)
+      # Convert the image from BGR to RGB as required by the TFLite model.
+      rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    print([pigCaseX, buttonPressed])
-    sio.emit('mechanics', [username, pigCaseX, buttonPressed])
+      # Create a TensorImage object from the RGB image.
+      input_tensor = vision.TensorImage.create_from_array(rgb_image)
+
+      # Run object detection estimation using the model.
+      detection_result = detector.detect(input_tensor)
+      
+      #processing coordinate of picture to classify the case
+      if detection_result.detections != []:
+          #If detect as green-pig
+          if detection_result.detections[0].categories[0].category_name == 'green-pig':
+              # print(detection_result.detections[0].bounding_box)
+              #origin at top-left
+              originX = detection_result.detections[0].bounding_box.origin_x
+              originY = detection_result.detections[0].bounding_box.origin_y
+              #image size
+              width = detection_result.detections[0].bounding_box.width
+              height = detection_result.detections[0].bounding_box.height
+              #locate center of picture
+              centerX = originX + width/2
+              centerY = originY + height/2
+              # print(centerX,centerY)
+              
+              if centerX < minW:
+                  pigCaseX = 0     #too left
+              elif centerX > minW and centerX < maxW:
+                  pigCaseX = 1     #middle
+              elif centerX > maxW:
+                  pigCaseX = 2     #too right
+      else:
+          pigCaseX = -1
+  
+      #print pigCaseX
+      # print(pigCaseX)
+      
+      if pigCaseX == 0:                      #too left
+          cw()
+      elif pigCaseX == 1:                    #middle 
+          stop()
+      elif pigCaseX == 2:                     #too right
+          ccw()
+      
+      #if pig is not detected, the motor will keep rotating
+      
+      print([username, pigCaseX, buttonPressed])
+      # sio.emit('mechanics', [username, pigCaseX, buttonPressed])  
+            
+      # Draw keypoints and edges on input image
+      image = ut.visualize(image, detection_result)
+
+      # Calculate the FPS
+      if counter % fps_avg_frame_count == 0:
+        end_time = time.time()
+        fps = fps_avg_frame_count / (end_time - start_time)
+        start_time = time.time()
+
+      # Show the FPS
+      fps_text = 'FPS = {:.1f}'.format(fps)
+      text_location = (left_margin, row_size)
+      cv2.putText(image, fps_text, text_location, cv2.FONT_HERSHEY_PLAIN,
+                  font_size, text_color, font_thickness)
+
+      # Stop the program if the ESC key is pressed.
+      if cv2.waitKey(1) == 27:
+        break
+      cv2.imshow('object_detector', image)
+
+      print([pigCaseX, buttonPressed])
+      sio.emit('mechanics', [username, pigCaseX, buttonPressed])
 
   cap.release()
   cv2.destroyAllWindows()
