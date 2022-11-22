@@ -149,7 +149,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
             
             if centerX < minW:
                 pigCaseX = 0     #too left
-                mymotortest.motor_go(True, "Full", 600, .0004, False, .05) #first parameter: True = CW = Turn Right
+                mymotortest.motor_go(False, "Full", 600, .0004, False, .05) #first parameter: False = CCW = Turn Left#
                 print("Turn Right")
             elif centerX > minW and centerX < maxW:
                 pigCaseX = 1     #middle
@@ -157,7 +157,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
                 print("Center")
             elif centerX > maxW:
                 pigCaseX = 2     #too right
-                mymotortest.motor_go(False, "Full", 600, .0004, False, .05) #first parameter: False = CCW = Turn Left
+                mymotortest.motor_go(True, "Full", 600, .0004, False, .05) #first parameter: True = CW = Turn Right
                 print("Turn Left")
     else:
         pigCaseX = -1
